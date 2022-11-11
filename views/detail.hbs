@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Fishcat Project</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/basket">Keranjang</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="item-wrap">
+    <div class="image-item-wrap">
+        <img src="{{item.image}}" alt="" width="150" height="150">
+    </div>
+    <a href="/item/{{item.id}}" data-id="{{item.id}}" id="item-name">{{item.name}}</a>
+    <p>Rp. {{item.harga}}</p>
+</div>
+
+<button type="button" class="btn btn-primary" id="add-cart" onclick="bayar()">tambah keranjang</button>
+
+<script>
+    if (!localStorage.getItem('cart')) localStorage.setItem('cart', JSON.stringify([]))
+    function bayar() {
+        if (!checkCart(document.getElementById('item-id'))) { //id is not in cart
+            let cart = JSON.parse(localStorage.getItem('cart'));
+            cart.push({ id: document.getElementById('item-name').dataset.id, qty: 1 })
+            localStorage.setItem('cart', JSON.stringify(cart));
+            console.log('ditambahkan ke chart')
+            document.querySelector('#add-cart').innerText = 'barang di keranjang'
+            document.querySelector('#add-cart').disabled = true
+        }
+    }
+    function checkCart(id) {
+        return JSON.parse(localStorage.getItem('cart')).find(item => item.id === id)
+    }
+    window.addEventListener('load', ev => {
+        if (checkCart(document.getElementById('item-name').dataset.id)) {
+            document.querySelector('#add-cart').innerText = 'barang di keranjang'
+            document.querySelector('#add-cart').disabled = true
+        }
+    })
+</script>

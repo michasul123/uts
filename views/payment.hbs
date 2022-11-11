@@ -1,0 +1,82 @@
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Fishcat Project</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/basket">Kerajang</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/basket">Cek Nota</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="bill-items container">
+    <form method="post" action="/payment">
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">Masukan email</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Alamat rumah</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">Masukan alamat rumah</div>
+        </div>
+        <table id="item-list" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Harga</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Bayar</button>
+        <button type="submit" class="btn">Batalkan</button>
+    </form>
+</div>
+<script>
+    function batal(){
+
+    }
+
+    function bayar(){
+
+    }
+    function render() {
+        const pay = JSON.parse(localStorage.getItem('pay'));
+        const tbody = document.querySelector('#item-list > tbody');
+        pay.forEach(item => {
+            fetch(`/item/i/${item.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${data.name}</td>
+                            <td>Rp. ${data.harga}</td>
+                            <td>${item.qty}</td>
+                            <td>Rp. ${data.harga * item.qty}</td>
+                        </tr>
+                        `
+                })
+
+        })
+    }
+    if (!localStorage.getItem('pay')) window.location.replace('/');
+    render();
+</script>

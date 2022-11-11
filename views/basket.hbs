@@ -1,0 +1,101 @@
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Fishcat Project</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Cek Nota</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div style="margin-left: 12px ;">
+    <div class="basket-items">
+    </div>
+    <div class="detail-form">
+        Total bayar : <span id="total"></span>
+    </div>
+    <button id="submit" onclick="submit()">Lanjut pembayaran</button>
+</div>
+<script>
+    let transaction = [];
+    function render() {
+        document.querySelector('.basket-items').innerHTML = "";
+        if (!localStorage.getItem('cart')) {
+            document.getElementById('submit').style.display = "none";
+            document.querySelector('.detail-form').style.display = "none";
+            document.querySelector('.basket-items').innerHTML = "keranjang kosong";
+            localStorage.removeItem('pay');
+            return;
+        }
+        const cart = JSON.parse(localStorage.getItem('cart'));
+
+        let totalBayar = 0;
+        cart.forEach(item => {
+            fetch(`/item/i/${item.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    totalBayar += data.harga
+                    const itemComponent = `
+                        <div class="item-wrap" style="margin-bottom:4px">
+                            <img src="${data.image}" alt="" width="150" height="150">
+                            <div style="display:inline-block">
+                            <div>${data.name}</div>
+                            <div>Rp. ${data.harga}</div>
+                            <div>Jumlah : <input onchange="berubah(this)" type="number" id="qty-${data.id}" name="qty-${data.id}" min="1" value=1></div>
+                            <button type="button" class="btn btn-danger" onclick="deleteItem('${item.id}')">hapus</button>
+                            </div>
+                        </div>
+                    `
+                    document.querySelector('.basket-items').innerHTML += itemComponent;
+                    document.querySelector('#total').innerText = `Rp. ${totalBayar}`
+                })
+        });
+
+    }
+
+    function berubah(evt) {
+        const cart = JSON.parse(localStorage.getItem('cart'));
+        let accTotal = 0
+        cart.forEach(item => {
+            fetch(`/item/i/${item.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    accTotal += data.harga * document.querySelector(`#qty-${data.id}`).value;
+                    console.log(accTotal)
+                    document.getElementById('total').innerText = `Rp. ${accTotal}`
+                })
+        });
+    }
+
+    function submit() {
+        const carts = JSON.parse(localStorage.getItem('cart'));
+        const pay = [];
+        carts.forEach(cart => {
+            pay.push({
+                id: cart.id,
+                qty: document.querySelector(`#qty-${cart.id}`).value
+            })
+        })
+        console.log(pay)
+        localStorage.setItem('pay', JSON.stringify(pay));
+        //TODO: put transaction on
+        //window.location = '/payment';
+    }
+
+    function deleteItem(id) {
+        const cart = JSON.parse(localStorage.getItem('cart')).filter(item => item.id !== id);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        render();
+    }
+
+    render();
+</script>
